@@ -594,8 +594,11 @@
       options.ok = ok;
     }
 
+    // 合并配置
+    var settings = jQuery.extend(true, {}, defaults, options);
+
     // 打开弹框，并返回弹窗实例
-    return this.open(jQuery.extend(true, {}, defaults, options));
+    return this.open(settings);
   };
 
   // 仿系统confirm对话框
@@ -625,8 +628,11 @@
       options.cancel = cancel;
     }
 
+    // 合并配置
+    var settings = jQuery.extend(true, {}, defaults, options);
+
     // 打开弹框，并返回弹窗实例
-    return this.open(jQuery.extend(true, {}, defaults, options));
+    return this.open(settings);
   };
 
   // 仿系统prompt对话框
@@ -674,15 +680,15 @@
       input.focus();
     };
 
+    // 合并配置
+    var settings = jQuery.extend(true, {}, defaults, options);
+
     // 打开弹框，并返回弹窗实例
-    return this.open(jQuery.extend(true, {}, defaults, options));
+    return this.open(settings);
   };
 
   // 消息框
   modal.msg = function(content, close) {
-    // 关闭之前所有打开的msg类型弹窗
-    this.closeAll("msg");
-
     // 默认配置
     var defaults = {
       type: "msg",
@@ -709,8 +715,14 @@
       options.close = close;
     }
 
+    // 合并配置
+    var settings = jQuery.extend(true, {}, defaults, options);
+
+    // 关闭之前所有同类型的弹窗
+    this.closeAll(settings.type);
+
     // 打开弹框，并返回弹窗实例
-    return this.open(jQuery.extend(true, {}, defaults, options));
+    return this.open(settings);
   };
 
   // 加载框
@@ -745,8 +757,11 @@
       options.content = "<i class=\"ui-modal-svg ui-modal-svg-bars\" />";
     }
 
+    // 合并配置
+    var settings = jQuery.extend(true, {}, defaults, options);
+
     // 打开弹框，并返回弹窗索引
-    return this.open(jQuery.extend(true, {}, defaults, options));
+    return this.open(settings);
   };
 
   // --------------------------------------------------------------------------------

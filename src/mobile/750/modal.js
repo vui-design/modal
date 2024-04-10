@@ -105,12 +105,6 @@
     fixed: true,
     // 层叠顺序
     zIndex: 10000,
-    // 宽高（忽略边框），默认宽高自适应
-    size: "auto",
-    // 最大宽度，只有当宽度自适应时，maxWidth的设定才有效；默认不限定最大宽度
-    maxWidth: false,
-    // 最大高度，只有当高度自适应时，maxHeight的设定才有效；默认不限定最大高度
-    maxHeight: false,
     // 坐标，默认水平垂直居中
     offset: "centered",
     // 是否为定制弹窗，定制弹窗将不显示标题、操作按钮及关闭按钮
@@ -141,20 +135,12 @@
     ok: utils.noop,
     // 自定义按钮
     btns: [],
-    // 自定义按钮水平方向的排列方式，默认右对齐
-    btnsAlign: "right",
     // 是否显示关闭按钮
     showBtnClose: true,
-    // 关闭按钮类型
-    btnCloseType: 1,
     // 打开事件回调函数
     open: utils.noop,
     // 关闭事件回调函数
     close: utils.close,
-    // 触发拖动的目标元素
-    dragger: ".ui-modal-header",
-    // 是否允许拖出窗口可视区域
-    canDragOut: false,
     // 停留时长，单位毫秒；默认不会自动关闭
     duration: 0,
     // 打开动画&关闭动画
@@ -203,11 +189,6 @@
     // 重设zIndex属性
     me.options.zIndex = me.options.zIndex + me.index;
 
-    // 重设size属性
-    if (utils.isString(me.options.size)) {
-      me.options.size = me.options.size === "auto" ? ["", ""] : [me.options.size, ""];
-    }
-
     // 重设className属性
     if (me.options.customized) {
       me.options.className = me.options.className ? ("ui-modal-customized " + me.options.className) : "ui-modal-customized";
@@ -234,10 +215,6 @@
       me.options.showBtnClose = false;
     }
 
-    if (!me.options.showTitle && me.options.showBtnClose) {
-      me.options.btnCloseType = 2;
-    }
-
     // 打开弹框
     me.open();
 
@@ -256,15 +233,10 @@
 
     me.options.backdrop && body.append(template[0]);
     body.append(template[1]);
-    me.options.dragger && body.append(template[2]);
 
-    // 存储弹框背景、弹窗、弹窗遮罩DOM对象引用
+    // 存储弹窗背景、弹窗DOM对象引用
     me.backdrop = me.options.backdrop ? jQuery("#ui-modal-backdrop" + me.index) : null;
     me.modal = jQuery("#ui-modal" + me.index);
-    me.mask = me.options.dragger ? jQuery("#ui-modal-mask" + me.index) : null;
-
-    // 设置尺寸
-    me.size();
 
     // 设置坐标
     me.offset();
@@ -284,8 +256,8 @@
       }
     };
 
-    // 如果浏览器不支持css3动画，或者未设置打开动画时，则直接打开
-    if ((utils.ie && utils.ie < 10) || !me.options.animations[0]) {
+    // 未设置打开动画时，则直接打开
+    if (!me.options.animations[0]) {
       open();
     }
     // 反之先应用打开动画，再打开
@@ -310,7 +282,6 @@
       // 销毁DOM元素
       me.backdrop && me.backdrop.remove();
       me.modal.remove();
-      me.mask && me.mask.remove();
 
       // 执行关闭回调函数
       if (utils.isFunction(me.options.close)) {
@@ -318,8 +289,8 @@
       }
     };
 
-    // 如果浏览器不支持css3动画，或者未设置关闭动画时，则直接关闭
-    if ((utils.ie && utils.ie < 10) || !me.options.animations[1]) {
+    // 未设置关闭动画时，则直接关闭
+    if (!me.options.animations[1]) {
       close();
     }
     // 反之先应用关闭动画，再关闭
@@ -349,7 +320,7 @@
     // 弹窗
     var html = "";
 
-    html += "<div id=\"ui-modal" + me.index + "\" class=\"ui-modal" + (me.options.className ? (" " + me.options.className) : "") + "\" style=\"position: " + (me.options.fixed ? "fixed" : "absolute") + "; z-index: " + me.options.zIndex + "; width: " + me.options.size[0] + "; height: " + me.options.size[1] + ";\">";
+    html += "<div id=\"ui-modal" + me.index + "\" class=\"ui-modal" + (me.options.className ? (" " + me.options.className) : "") + "\" style=\"position: " + (me.options.fixed ? "fixed" : "absolute") + "; z-index: " + me.options.zIndex + ";\">";
 
     if (me.options.showTitle) {
       if (utils.isString(me.options.title)) {
@@ -372,7 +343,7 @@
     html += "</div>";
 
     if (me.options.btns.length > 0 || me.options.showBtnCancel || me.options.showBtnOk) {
-      html += "<div class=\"ui-modal-footer\" style=\"text-align: " + me.options.btnsAlign + ";\">";
+      html += "<div class=\"ui-modal-footer\">";
 
       if (me.options.btns.length > 0) {
         for (var index = 0, length = me.options.btns.length; index < length; index++) {
@@ -392,53 +363,12 @@
     }
 
     if (me.options.showBtnClose) {
-      html += "<b class=\"ui-modal-btn-close ui-modal-btn-close" + me.options.btnCloseType + "\" data-modal-role=\"close\"></b>";
+      html += "<button type=\"button\" class=\"ui-modal-btn-close\" data-modal-role=\"close\"></button>";
     }
 
     html += "</div>";
 
-    // 弹窗遮罩
-    var htmlMask = "";
-
-    if (me.options.dragger) {
-      htmlMask = "<div id=\"ui-modal-mask" + me.index + "\" class=\"ui-modal-mask\" style=\"z-index: " + me.options.zIndex + ";\"></div>";
-    }
-
-    // 
-    return [htmlBackdrop, html, htmlMask];
-  };
-
-  // 设置尺寸
-  Modal.prototype.size = function() {
-    // 
-    var me = this;
-
-    // 设置宽度
-    if (!me.options.size[0] && me.options.maxWidth > 0 && me.modal.innerWidth() > me.options.maxWidth) {
-      me.modal.width(me.options.maxWidth);
-    }
-
-    // 设置高度
-    var height = me.modal.innerHeight();
-    var modalHeaderHeight = me.modal.find(".ui-modal-header").outerHeight() || 0;
-    var modalFooterHeight = me.modal.find(".ui-modal-footer").outerHeight() || 0;
-    var resize = function() {
-      var target = me.modal.find(".ui-modal-body");
-      var paddingTop = parseFloat(target.css("padding-top"));
-      var paddingBottom = parseFloat(target.css("padding-top"));
-
-      target.height(height - modalHeaderHeight - modalFooterHeight - paddingTop - paddingBottom);
-    };
-
-    if (!me.options.size[1]) {
-      if (me.options.maxHeight > 0 && height > me.options.maxHeight) {
-        height = me.options.maxHeight;
-        resize();
-      }
-    }
-    else {
-      resize();
-    }
+    return [htmlBackdrop, html];
   };
 
   // 设置坐标
@@ -515,68 +445,11 @@
     // 
     var me = this;
     var viewport = jQuery(window);
-    var context = jQuery(document);
-    var dragger = me.modal.find(me.options.dragger);
-    var dict = {};
 
     // 窗口大小改变时，重新设置坐标
     viewport.on("resize", function() {
       me.offset();
     });
-
-    // 注册拖动事件处理程序
-    if (dragger.length > 0) {
-      dragger.on("mousedown", function(e) {
-        e.preventDefault();
-
-        dict.dragging = true;
-        dict.offset = [
-          e.clientX - parseFloat(me.modal.css("left")),
-          e.clientY - parseFloat(me.modal.css("top"))
-        ];
-
-        me.mask.show();
-      });
-
-      context.on("mousemove", function(e) {
-        if (dict.dragging) {
-          e.preventDefault();
-
-          var x = e.clientX - dict.offset[0];
-          var y = e.clientY - dict.offset[1];
-
-          if (!me.options.canDragOut) {
-            var minX = me.options.fixed ? 0 : viewport.scrollLeft();
-            var minY = me.options.fixed ? 0 : viewport.scrollTop();
-            var maxX = viewport.width() - me.modal.outerWidth() + minX;
-            var maxY = viewport.height() - me.modal.outerHeight() + minY;
-
-            x < minX && (x = minX);
-            x > maxX && (x = maxX);
-            y < minY && (y = minY);
-            y > maxY && (y = maxY);
-          }
-
-          me.modal.css({
-            left: x,
-            top: y
-          });
-        }
-      });
-
-      context.on("mouseup", function(e) {
-        if (dict.dragging) {
-          delete dict.dragging;
-          delete dict.offset;
-
-          me.mask.hide();
-
-          if (utils.isFunction(me.options.dragEnd)) {
-            me.options.dragEnd.call(me);
-          }
-        }
-      });
-    }
 
     // 注册弹窗遮罩点击事件处理程序
     if (me.options.backdrop && me.options.clickBackdropToClose) {
@@ -703,7 +576,6 @@
     var defaults = {
       type: "alert",
       className: "ui-modal-alert",
-      icon: "warning",
       showBtnCancel: false,
       showBtnClose: false
     };
@@ -735,7 +607,6 @@
     var defaults = {
       type: "confirm",
       className: "ui-modal-confirm",
-      icon: "help",
       showBtnClose: false
     };
 
@@ -824,7 +695,6 @@
       backdrop: false,
       className: "ui-modal-msg",
       showTitle: false,
-      icon: "info",
       showBtnCancel: false,
       showBtnOk: false,
       showBtnClose: false,
